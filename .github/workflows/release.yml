@@ -55,7 +55,13 @@ jobs:
   macos:
     needs: check-signing
     if: needs.check-signing.outputs.mac == 'true'
-    runs-on: macos-latest
+    # Pinned below -latest deliberately: electron-builder's keychain import
+    # (`security set-key-partition-list -k <cert password>`, which should be
+    # the *keychain's* password, not the cert's — see app-builder-lib's
+    # macCodeSign.js importCerts()) fails with "SecKeychainUnlock: the user
+    # name or passphrase you entered is not correct" on newer macOS runner
+    # images. macos-14 is the last one this repo verified working.
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

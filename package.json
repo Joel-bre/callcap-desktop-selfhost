@@ -1,6 +1,6 @@
 {
   "name": "callcap-desktop-selfhost",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Callcap desktop recorder",
   "main": "src/main.cjs",
   "author": "Callcap",

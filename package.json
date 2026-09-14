@@ -1,0 +1,97 @@
+{
+  "name": "callcap-desktop-selfhost",
+  "version": "1.0.0",
+  "description": "Callcap desktop recorder",
+  "main": "src/main.cjs",
+  "author": "Callcap",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "publish": "electron-builder --publish always"
+  },
+  "devDependencies": {
+    "electron": "^44.3.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "build": {
+    "appId": "app.callcap.recorder.selfhost",
+    "productName": "Callcap Self-Hosted",
+    "asar": true,
+    "directories": {
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "protocols": [
+      {
+        "name": "Callcap Self-Hosted",
+        "schemes": [
+          "callcap-sh"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "artifactName": "Callcap-SelfHosted.${ext}",
+      "icon": "build/icon.png",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": true,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Callcap records your microphone to transcribe and summarize your meetings.",
+        "NSScreenCaptureUsageDescription": "Callcap captures system audio so it can transcribe the other participants in your meetings."
+      }
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Callcap-Setup.${ext}",
+      "icon": "build/icon.png",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Joel-bre",
+      "repo": "callcap-desktop-selfhost",
+      "releaseType": "release"
+    }
+  }
+}

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; media-src 'self' blob:" />
+  <title>Callcap</title>
+  <style>
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("./fonts/space-grotesk.woff2") format("woff2");
+      font-weight: 400 700; font-display: swap;
+    }
+    @font-face {
+      font-family: "DM Sans";
+      src: url("./fonts/dm-sans.woff2") format("woff2");
+      font-weight: 400 500; font-display: swap;
+    }
+
+    :root {
+      --paper: oklch(0.964 0.008 84.6);
+      --panel: oklch(0.918 0.011 82.4);
+      --ink: oklch(0.161 0 0);
+      --ink-muted: oklch(0.46 0.006 84);
+      --signal: oklch(0.577 0.219 27.6);
+      --signal-foreground: oklch(0.99 0.005 84);
+      --rule: oklch(0.161 0 0 / 14%);
+      --font-display: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --font-body: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      padding: 28px;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    .brand {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+      display: flex; align-items: baseline; gap: 10px;
+    }
+    .brand .accent { color: var(--signal); }
+    .brand .tag {
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: var(--ink-muted);
+    }
+
+    .frame {
+      border: 1px solid var(--ink);
+      background: var(--paper);
+      padding: 22px;
+    }
+
+    h2 {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+
+    p.muted { color: var(--ink-muted); font-size: 13px; margin-top: 8px; }
+    p.fineprint {
+      color: var(--ink-muted);
+      font-size: 11.5px;
+      margin-top: 16px;
+      border-top: 1px solid var(--rule);
+      padding-top: 12px;
+    }
+    code {
+      background: var(--panel);
+      padding: 1px 5px;
+      font-size: 11.5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    label.field {
+      display: block;
+      margin-top: 16px;
+      font-family: var(--font-body);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--ink-muted);
+    }
+    input[type="text"], select {
+      width: 100%;
+      margin-top: 7px;
+      padding: 9px 10px;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 13px;
+      font-family: var(--font-body);
+      outline: none;
+    }
+    input[type="text"]:focus, select:focus { border-color: var(--ink); }
+    input[type="text"]::placeholder { color: color-mix(in oklch, var(--ink-muted) 55%, transparent); }
+
+    button {
+      font-family: var(--font-body);
+      font-size: 13px;
+      padding: 11px 18px;
+      border: 1px solid var(--ink);
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s, opacity 0.12s;
+      display: inline-flex; align-items: center; gap: 8px;
+      justify-content: center;
+    }
+    button:hover { background: var(--ink); color: var(--paper); }
+    button svg { width: 15px; height: 15px; }
+
+    button.primary {
+      border-color: var(--signal);
+      background: var(--signal);
+      color: var(--signal-foreground);
+    }
+    button.primary:hover { opacity: 0.9; background: var(--signal); color: var(--signal-foreground); }
+    button.primary:disabled { opacity: 0.55; cursor: default; }
+
+    button.block { width: 100%; margin-top: 18px; }
+
+    button.link {
+      border: 0; background: none; color: var(--ink-muted);
+      padding: 0; text-decoration: underline; font-size: 12px;
+    }
+    button.link:hover { background: none; color: var(--ink); }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 18px 0 4px;
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--ink-muted);
+    }
+    .divider::before, .divider::after {
+      content: ""; height: 1px; flex: 1; background: var(--rule);
+    }
+
+    .paired-row {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--ink-muted);
+      margin-bottom: 14px;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-muted); flex: none; }
+    .dot.ok { background: var(--signal); }
+
+    .row-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+      flex-wrap: wrap;
+    }
+    .status-line {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.2em;
+      color: var(--ink-muted);
+    }
+    .pulse {
+      width: 8px; height: 8px; background: var(--signal); flex: none;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .timer {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 42px;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      margin-top: 6px;
+    }
+
+    .meters { margin-top: 26px; display: grid; gap: 16px; }
+    @media (min-width: 440px) { .meters { grid-template-columns: 1fr 1fr; } }
+    .meter-label {
+      display: flex; align-items: baseline; justify-content: space-between;
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--ink-muted);
+    }
+    .meter-label .hint { color: var(--signal); text-transform: none; letter-spacing: 0; font-size: 11px; }
+    .track { margin-top: 7px; height: 6px; width: 100%; background: var(--rule); }
+    .fill { height: 100%; width: 0%; background: var(--ink); transition: width 0.1s linear; }
+
+    .rec-foot {
+      margin-top: 26px; padding-top: 12px; border-top: 1px solid var(--rule);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      font-size: 11.5px; color: var(--ink-muted);
+    }
+
+    .icon-row { display: flex; align-items: flex-start; gap: 11px; }
+    .icon-row svg { flex: none; width: 20px; height: 20px; margin-top: 3px; color: var(--signal); }
+    .icon-row > div { min-width: 0; flex: 1; }
+
+    .btn-group { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .warn-text { color: var(--signal); }
+    .ok-text { color: var(--signal); }
+
+    .version { margin-top: 16px; font-size: 10.5px; color: var(--ink-muted); letter-spacing: 0.04em; }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="brand">Callcap<span class="accent">.</span><span class="tag">desktop recorder</span></div>
+
+  <!-- ============ NOT PAIRED ============ -->
+  <section class="frame" id="s-unpaired">
+    <h2>Connect this app to your account</h2>
+    <p class="muted">
+      Recordings are transcribed into minutes and action items on your Callcap account,
+      so pair this device first.
+    </p>
+    <button class="primary block" id="pair-btn">Pair with my account</button>
+
+    <div class="divider"><span>or paste a token</span></div>
+    <input type="text" id="token-input" placeholder="ccp_pair_…" spellcheck="false" autocomplete="off" />
+    <button class="block" id="submit-token-btn" style="margin-top:10px">Pair with token</button>
+    <p class="muted" id="token-msg" hidden></p>
+    <p class="fineprint">
+      Open <code>callcap.quietly.ch/pair</code> in your browser, generate a token, and paste it above.
+    </p>
+  </section>
+
+  <!-- ============ IDLE (paired, ready) ============ -->
+  <section class="frame" id="s-idle" hidden>
+    <div class="paired-row"><span class="dot ok"></span><span id="paired-label">Paired</span></div>
+    <h2>Record this meeting</h2>
+    <p class="muted">
+      Callcap records the other side from your system audio and your own voice from the
+      microphone — the two sides kept on separate channels of the same file.
+    </p>
+
+    <label class="field" for="meeting-name">Meeting title — optional</label>
+    <input type="text" id="meeting-name" maxlength="200" placeholder="Acme — pricing call" spellcheck="false" />
+
+    <label class="field" for="device">Microphone</label>
+    <select id="device"><option value="">Default microphone</option></select>
+
+    <button class="primary block" id="record-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M4.93 19.07A10 10 0 0 1 4.93 4.93M7.76 16.24a6 6 0 0 1 0-8.49M16.24 7.76a6 6 0 0 1 0 8.49M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      Start recording
+    </button>
+    <button class="block" id="unpair-btn" style="margin-top:10px">Unpair</button>
+
+    <p class="fineprint">
+      The first time you record, macOS asks for <span style="color:var(--ink)">Microphone</span> and
+      <span style="color:var(--ink)">Screen&nbsp;Recording</span> — Screen Recording is how Callcap hears the other side.
+    </p>
+  </section>
+
+  <!-- ============ REQUESTING (permission prompts) ============ -->
+  <section class="frame" id="s-starting" hidden>
+    <div class="status-line">Waiting for macOS permission…</div>
+    <p class="muted" style="margin-top:14px">
+      Allow <span style="color:var(--ink)">Microphone</span> and
+      <span style="color:var(--ink)">Screen&nbsp;Recording</span> in the prompts.
+      If you granted them earlier, this is instant.
+    </p>
+  </section>
+
+  <!-- ============ RECORDING ============ -->
+  <section class="frame" id="s-recording" hidden>
+    <div class="row-head">
+      <div>
+        <div class="status-line"><span class="pulse" id="rec-pulse"></span><span id="rec-label">Recording</span></div>
+        <div class="timer" id="timer">00:00</div>
+      </div>
+      <button class="primary" id="stop-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="1"/></svg>
+        Finish and transcribe
+      </button>
+    </div>
+
+    <div class="meters">
+      <div>
+        <div class="meter-label"><span>You — microphone</span><span class="hint" id="mic-hint"></span></div>
+        <div class="track"><div class="fill" id="mic-fill"></div></div>
+      </div>
+      <div>
+        <div class="meter-label"><span>Other side — meeting audio</span><span class="hint" id="rem-hint"></span></div>
+        <div class="track"><div class="fill" id="rem-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="rec-foot">
+      <span id="rec-status">Uploads when you finish.</span>
+      <button class="link" id="discard-btn">Discard</button>
+    </div>
+  </section>
+
+  <!-- ============ DONE ============ -->
+  <section class="frame" id="s-done" hidden>
+    <div class="icon-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      <div>
+        <h2>Recording saved — transcribing now</h2>
+        <p class="muted">
+          Minutes and action items appear on the meeting page once the transcript is ready.
+          You can close this window.
+        </p>
+        <div class="btn-group">
+          <button class="primary" id="open-meeting-btn">Open the meeting</button>
+          <button id="record-another-btn">Record another</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ERROR ============ -->
+  <section class="frame" id="s-error" hidden>
+    <div class="icon-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg>
+      <div style="min-width:0">
+        <h2 id="error-title">That didn't work</h2>
+        <p class="muted" id="error-msg"></p>
+        <div class="btn-group">
+          <button class="primary" id="error-retry-btn">Try again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="version" id="version"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
